@@ -31,11 +31,9 @@ if __name__ == '__main__':
     # Status
     # 0 - Ok
     # 1 - error
-    df = pd.DataFrame({'Test':[], 'Vendor_original': [], 'Vendor_destination': [], 'Status': [], 'Original_version':[],
-                       'Destination_version': []})
-    exported = glob.glob('./**/*EX[0-9]*.xml', recursive=True)
+    exported = glob.glob('tests/**/*EX[0-9]*.xml', recursive=True)
     # exported = map()
-    imported = glob.glob('./**/*EX[0-9]*-*IM[0-9]*.png', recursive=True)
+    imported = glob.glob('tests/**/*EX[0-9]*-*IM[0-9]*.png', recursive=True)
 
     columns = ['TestCase', 'VendorFrom', 'TestCaseVersion', 'ExportVersion']
     exported_df = pd.DataFrame(columns=columns)
@@ -48,7 +46,11 @@ if __name__ == '__main__':
         exported_version = EXPORT_VERSION_PATTERN.findall(name)[0]
         exported_df.loc[len(exported_df)] = [test_case, vendors[0], test_case_version, exported_version]
 
-    # print(exported_df)
+    print('-'*30)
+    print('Export statistics')
+    print('-' * 30)
+    print(exported_df.pivot_table(index=['TestCase', 'TestCaseVersion'], columns='VendorFrom', values = 'ExportVersion',
+                   aggfunc='max'))
 
     columns = ['TestCase', 'VendorFrom', 'TestCaseVersion', 'ExportVersion', 'VendorTo', 'ImportVersion']
     imported_df = pd.DataFrame(columns=columns)
@@ -62,7 +64,12 @@ if __name__ == '__main__':
         imported_version = IMPORT_VERSION_PATTERN.findall(name)[0]
         imported_df.loc[len(imported_df)] = [test_case, vendors[0], test_case_version, exported_version, vendors[1], imported_version]
 
-    print(imported_df.pivot_table(index=['VendorTo'], columns='VendorFrom',
+    # print(imported_df)
+    print('-' * 30)
+    print('Import statistics')
+    print('-' * 30)
+
+    print(imported_df.pivot_table(index='VendorTo', columns='VendorFrom', values = 'ImportVersion',
                    aggfunc='count'))
 
 
